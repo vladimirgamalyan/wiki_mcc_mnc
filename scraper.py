@@ -8,7 +8,7 @@ def add_operator(mcc, mnc, brand, operator, country, country_code, db):
     assert re.match('^\d{3}$', mcc)
     assert re.match('^\d{2,3}$', mnc)
     db.append({
-        'name': mcc + mnc,
+        'mccmnc': mcc + mnc,
         'brand': brand,
         'operator': operator,
         'country': country,
@@ -53,7 +53,7 @@ def main():
         country_code = ''.join(tab_title)
         scan_table(table, country, country_code, db)
 
-    scraperwiki.sqlite.save(unique_keys=['name'], data=db)
+    scraperwiki.sqlite.save(unique_keys=['mccmnc'], data=db)
 
 
 main()
