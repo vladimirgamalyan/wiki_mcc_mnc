@@ -1,24 +1,61 @@
-# This is a template for a Python scraper on morph.io (https://morph.io)
-# including some code snippets below that you should find helpful
+import scraperwiki
+import requests
+from bs4 import BeautifulSoup
+import re
 
-# import scraperwiki
-# import lxml.html
-#
-# # Read in a page
-# html = scraperwiki.scrape("http://foo.com")
-#
-# # Find something on the page using css selectors
-# root = lxml.html.fromstring(html)
-# root.cssselect("div[align='left']")
-#
-# # Write out to the sqlite database using scraperwiki library
-# scraperwiki.sqlite.save(unique_keys=['name'], data={"name": "susan", "occupation": "software developer"})
-#
-# # An arbitrary query against the database
-# scraperwiki.sql.select("* from data where 'name'='peter'")
 
-# You don't have to do things with the ScraperWiki and lxml libraries.
-# You can use whatever libraries you want: https://morph.io/documentation/python
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+def add_operator(mcc, mnc, brand, operator, country, country_code, db):
+    assert re.match('^\d{3}$', mcc)
+    assert re.match('^\d{2,3}$', mnc)
+    if mcc not in db:
+        db[mcc] = {}
+    # assert mnc not in db[mcc]
+    db[mcc][mnc] = {
+        'brand': brand,
+        'operator': operator,
+        'country': country,
+        'countryCode': country_code
+    }
+
+
+def scan_table(table, country, country_code, db):
+    rows = table.find_all('tr')
+    hdr = rows.pop(0).find_all('th')
+    assert hdr[0].text == u'MCC'
+    assert hdr[1].text == u'MNC'
+    assert hdr[2].text == u'Brand'
+    assert hdr[3].text == u'Operator'
+    for row in rows:
+        td = row.find_all('td')
+        mcc = td[0].text
+        mnc = td[1].text
+        brand = td[2].text.replace('[citation needed]', '')
+        operator = td[3].text.replace('[citation needed]', '')
+        if mcc and mnc and '?' not in mnc:
+            if '-' in mnc:
+                # TODO: mnc range
+                pass
+            else:
+                add_operator(mcc, mnc, brand, operator, country, country_code, db)
+
+
+def contains_headline(tag):
+    return tag.find(class_='mw-headline') is not None
+
+
+def main():
+    db = {}
+    soup = BeautifulSoup(requests.get('https://en.wikipedia.org/wiki/Mobile_country_code').text, 'xml')
+    for th in soup.find_all('th', text='MCC'):
+        table = th.find_parent('table')
+        tab_title = table.find_previous_sibling(contains_headline).find(class_='mw-headline').findAll(text=True)
+        tab_title = ''.join(tab_title).split(' - ')
+        assert (len(tab_title) == 1) or (len(tab_title) == 2)
+        country = tab_title.pop(0)
+        country_code = ''.join(tab_title)
+        scan_table(table, country, country_code, db)
+
+    scraperwiki.sqlite.save(unique_keys=['name'], data=db)
+
+
+main()
