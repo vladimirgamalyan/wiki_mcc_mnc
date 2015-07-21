@@ -7,15 +7,13 @@ import re
 def add_operator(mcc, mnc, brand, operator, country, country_code, db):
     assert re.match('^\d{3}$', mcc)
     assert re.match('^\d{2,3}$', mnc)
-    if mcc not in db:
-        db[mcc] = {}
-    # assert mnc not in db[mcc]
-    db[mcc][mnc] = {
+    db.append({
+        'name': mcc + mnc,
         'brand': brand,
         'operator': operator,
         'country': country,
         'countryCode': country_code
-    }
+    })
 
 
 def scan_table(table, country, country_code, db):
@@ -44,7 +42,7 @@ def contains_headline(tag):
 
 
 def main():
-    db = {}
+    db = []
     soup = BeautifulSoup(requests.get('https://en.wikipedia.org/wiki/Mobile_country_code').text, 'xml')
     for th in soup.find_all('th', text='MCC'):
         table = th.find_parent('table')
