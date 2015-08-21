@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 
 
-def add_operator(mcc, mnc, brand, operator, country, country_code, db):
+def add_operator(mcc, mnc, brand, operator, status, country, country_code, db):
     assert re.match('^\d{3}$', mcc)
     assert re.match('^\d{2,3}$', mnc)
     db.append({
@@ -12,6 +12,7 @@ def add_operator(mcc, mnc, brand, operator, country, country_code, db):
         'brand': brand,
         'operator': operator,
         'country': country,
+        'status': status,
         'countryCode': country_code
     })
 
@@ -23,18 +24,20 @@ def scan_table(table, country, country_code, db):
     assert hdr[1].text == u'MNC'
     assert hdr[2].text == u'Brand'
     assert hdr[3].text == u'Operator'
+    assert hdr[4].text == u'Status'
     for row in rows:
         td = row.find_all('td')
         mcc = td[0].text
         mnc = td[1].text
         brand = td[2].text.replace('[citation needed]', '')
         operator = td[3].text.replace('[citation needed]', '')
+        status = td[4].text.replace('[citation needed]', '')
         if mcc and mnc and '?' not in mnc:
             if '-' in mnc:
                 # TODO: mnc range
                 pass
             else:
-                add_operator(mcc, mnc, brand, operator, country, country_code, db)
+                add_operator(mcc, mnc, brand, operator, status, country, country_code, db)
 
 
 def contains_headline(tag):
