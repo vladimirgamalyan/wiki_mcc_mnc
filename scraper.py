@@ -7,6 +7,7 @@ import re
 def add_operator(mcc, mnc, brand, operator, status, country, country_code, db):
     assert re.match('^\d{3}$', mcc)
     assert re.match('^\d{2,3}$', mnc)
+    assert status in ['discontinued', 'Inactive', 'Not operational', 'Operational', 'Planned', 'Planning', 'Reserved', 'Returned spare', 'Temporary operational', 'Unknown', '']
     db.append({
         'mccmnc': mcc + mnc,
         'brand': brand,
