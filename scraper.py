@@ -33,7 +33,7 @@ def scan_table(table, country, country_code, db):
         mnc = td[1].text
         brand = td[2].text.replace('[citation needed]', '')
         operator = td[3].text.replace('[citation needed]', '')
-        status = td[4].text.replace('[citation needed]', '')
+        status = re.sub(r'\([^)]*\)', '', td[4].text.replace('[citation needed]', '')).strip()
         if mcc and mnc and '?' not in mnc:
             if '-' in mnc:
                 # TODO: mnc range
