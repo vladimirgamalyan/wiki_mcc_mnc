@@ -8,7 +8,9 @@ def add_operator(mcc, mnc, brand, operator, status, country, country_code, db):
     assert re.match('^\d{3}$', mcc)
     assert re.match('^\d{2,3}$', mnc)
     assert re.match('^[A-Z/-]*$', country_code)
-    assert status.lower() in ['discontinued', 'inactive', 'not operational', 'operational', 'planned', 'planning', 'reserved', 'returned spare', 'temporary operational', 'suspended', 'unknown', 'test network', 'allocated', 'ongoing', '']
+    assert status.lower() in ['discontinued', 'inactive', 'not operational', 'operational', 'planned', 'planning',
+                              'reserved', 'returned spare', 'temporary operational', 'suspended', 'unknown',
+                              'test network', 'allocated', 'ongoing', '']
     db.append({
         'mccmnc': mcc + mnc,
         'brand': brand,
@@ -17,8 +19,6 @@ def add_operator(mcc, mnc, brand, operator, status, country, country_code, db):
         'status': status,
         'countryCode': country_code
     })
-
-
 
 
 def scan_table(table, country, country_code, db):
@@ -63,4 +63,5 @@ def main():
     scraperwiki.sqlite.save(unique_keys=['mccmnc'], data=db)
 
 
-main()
+if __name__ == '__main__':
+    main()
