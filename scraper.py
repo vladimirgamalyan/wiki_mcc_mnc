@@ -10,7 +10,7 @@ def add_operator(mcc, mnc, brand, operator, status, country, country_code, db):
     assert re.match('^[A-Z/-]*$', country_code)
     assert status.lower() in ['discontinued', 'inactive', 'not operational', 'operational', 'planned', 'planning',
                               'reserved', 'returned spare', 'temporary operational', 'suspended', 'unknown',
-                              'test network', 'allocated', 'ongoing', '']
+                              'test network', 'allocated', 'ongoing', '', '?', 'operational merger with vip']
     db.append({
         'mccmnc': mcc + mnc,
         'brand': brand,
